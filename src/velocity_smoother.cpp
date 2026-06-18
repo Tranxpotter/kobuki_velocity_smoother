@@ -71,17 +71,30 @@ VelocitySmoother::VelocitySmoother(const rclcpp::NodeOptions & options)
   this->declare_parameter("accel_lim_v", 0.3);
   this->declare_parameter("accel_lim_w", 3.5);
 
+  // Topics parameters
+  this->declare_parameter("odometry_feedback_topic", "~/feedback/odometry");
+  this->declare_parameter("velocity_feedback_topic", "~/feedback/cmd_vel");
+  this->declare_parameter("input_topic", "~/input");
+  this->declare_parameter("smooth_velocity_topic", "~/smoothed");
+
+
+  std::string odometry_feedback_topic = this->get_parameter("odometry_feedback_topic").as_string();
+  std::string velocity_feedback_topic = this->get_parameter("velocity_feedback_topic").as_string();
+  std::string input_topic = this->get_parameter("input_topic").as_string();
+  std::string smooth_velocity_topic = this->get_parameter("smooth_velocity_topic").as_string();
+
+
   // Publishers and subscribers
   odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-    "~/feedback/odometry", rclcpp::QoS(1),
+    odometry_feedback_topic, rclcpp::QoS(1),
     std::bind(&VelocitySmoother::odometryCB, this, std::placeholders::_1));
   current_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
-    "~/feedback/cmd_vel", rclcpp::QoS(1),
+    velocity_feedback_topic, rclcpp::QoS(1),
     std::bind(&VelocitySmoother::robotVelCB, this, std::placeholders::_1));
   raw_in_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
-    "~/input", rclcpp::QoS(1),
+    input_topic, rclcpp::QoS(1),
     std::bind(&VelocitySmoother::velocityCB, this, std::placeholders::_1));
-  smooth_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>("~/smoothed", 1);
+  smooth_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(smooth_velocity_topic, 1);
 
   period_ = 1.0 / frequency;
   timer_ = this->create_wall_timer(

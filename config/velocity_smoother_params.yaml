@@ -20,4 +20,10 @@ kobuki_velocity_smoother:
     #  0 - none
     #  1 - odometry
     #  2 - actual commanded velocity (e.g. after it's been piped through a mux)
-    feedback: 2
+    feedback: 1
+
+    # Topics: 
+    odometry_feedback_topic: /robot_odom
+    velocity_feedback_topic: ~/feedback/cmd_vel # not in use
+    input_topic: /cmd_vel
+    smooth_velocity_topic: /cmd_vel_smoothed
