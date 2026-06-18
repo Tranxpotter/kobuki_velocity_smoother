@@ -8,7 +8,7 @@ kobuki_velocity_smoother:
     speed_lim_w: 5.4
 
     accel_lim_v: 0.3
-    accel_lim_w: 3.5
+    accel_lim_w: 2.0
 
     # multiply the acceleration limit by this to permit faster decellerations
     decel_factor: 1.0

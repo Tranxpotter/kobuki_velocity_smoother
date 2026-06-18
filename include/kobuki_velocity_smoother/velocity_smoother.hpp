@@ -75,14 +75,14 @@ private:
   /**< Current velocity from commands sent to the robot, not necessarily by this node */
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr current_vel_sub_;
   /**< Incoming raw velocity commands */
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr raw_in_vel_sub_;
+  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr raw_in_vel_sub_;
   /**< Outgoing smoothed velocity commands */
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr smooth_vel_pub_;
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::node_interfaces::OnSetParametersCallbackHandle::SharedPtr param_cb_;
 
   void timerCB();
-  void velocityCB(const geometry_msgs::msg::Twist::SharedPtr msg);
+  void velocityCB(const geometry_msgs::msg::TwistStamped::SharedPtr msg);
   void robotVelCB(const geometry_msgs::msg::Twist::SharedPtr msg);
   void odometryCB(const nav_msgs::msg::Odometry::SharedPtr msg);
 

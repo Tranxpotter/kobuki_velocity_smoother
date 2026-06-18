@@ -21,6 +21,7 @@
 #include <vector>
 
 #include "geometry_msgs/msg/twist.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -91,7 +92,7 @@ VelocitySmoother::VelocitySmoother(const rclcpp::NodeOptions & options)
   current_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
     velocity_feedback_topic, rclcpp::QoS(1),
     std::bind(&VelocitySmoother::robotVelCB, this, std::placeholders::_1));
-  raw_in_vel_sub_ = this->create_subscription<geometry_msgs::msg::Twist>(
+  raw_in_vel_sub_ = this->create_subscription<geometry_msgs::msg::TwistStamped>(
     input_topic, rclcpp::QoS(1),
     std::bind(&VelocitySmoother::velocityCB, this, std::placeholders::_1));
   smooth_vel_pub_ = this->create_publisher<geometry_msgs::msg::Twist>(smooth_velocity_topic, 1);
@@ -109,7 +110,7 @@ VelocitySmoother::~VelocitySmoother()
 {
 }
 
-void VelocitySmoother::velocityCB(const geometry_msgs::msg::Twist::SharedPtr msg)
+void VelocitySmoother::velocityCB(const geometry_msgs::msg::TwistStamped::SharedPtr msg)
 {
   // Estimate commands frequency; we do continuously as it can be very different depending on the
   // publisher type, and we don't want to impose extra constraints to keep this package flexible
@@ -137,11 +138,11 @@ void VelocitySmoother::velocityCB(const geometry_msgs::msg::Twist::SharedPtr msg
   double speed_lim_v = get_parameter("speed_lim_v").as_double();
   double speed_lim_w = get_parameter("speed_lim_w").as_double();
   target_vel_.linear.x =
-    msg->linear.x > 0.0 ? std::min(msg->linear.x, speed_lim_v) : std::max(
-    msg->linear.x, -speed_lim_v);
+    msg->twist.linear.x > 0.0 ? std::min(msg->twist.linear.x, speed_lim_v) : std::max(
+    msg->twist.linear.x, -speed_lim_v);
   target_vel_.angular.z =
-    msg->angular.z > 0.0 ? std::min(msg->angular.z, speed_lim_w) : std::max(
-    msg->angular.z, -speed_lim_w);
+    msg->twist.angular.z > 0.0 ? std::min(msg->twist.angular.z, speed_lim_w) : std::max(
+    msg->twist.angular.z, -speed_lim_w);
 }
 
 void VelocitySmoother::odometryCB(const nav_msgs::msg::Odometry::SharedPtr msg)
